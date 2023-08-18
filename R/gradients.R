@@ -18,7 +18,7 @@ scale_fill_continuous = function(low = "#FFFFB3", high = "#FB8072", ...) {
 #'  the scale. Any data values that don't match will be given na.value.
 #' @param ... Other arguments passed on to [ggplot2::scale_fill_manual()]
 #' @export
-scale_fill_discrete = function(values = RColorBrewer::brewer.pal(11, "Set3"), ...) {
+scale_fill_discrete = function(values = RColorBrewer::brewer.pal(n = 11, name = "Set3"), ...) {
   ggplot2::scale_fill_manual(values = values, guide = "none", ...)
 }
 

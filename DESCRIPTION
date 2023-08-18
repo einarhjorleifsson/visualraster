@@ -10,6 +10,7 @@ License: GPL
 URL: http://github.com/etiennebr/visualraster
 BugReports: http://github.com/etiennebr/visualraster/issues
 Encoding: UTF-8
+VignetteBuilder: knitr
 Depends:
     R (>= 4.0.0)
 Imports:
@@ -24,4 +25,5 @@ Suggest:
     sf
 RoxygenNote: 7.2.3
 Suggests: 
+    knitr,
     rmarkdown

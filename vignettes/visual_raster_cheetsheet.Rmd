@@ -35,7 +35,7 @@ library("knitr")
 library("xtable")
 
 # modify stylesheet
-options(markdown.HTML.stylesheet = system.file('misc', 'vr_vignette.css', package='visualraster'))
+#options(markdown.HTML.stylesheet = system.file('misc', 'vr_vignette.css', package='visualraster'))
 # xtable params
 options(xtable.type = "html")
 options(xtable.include.rownames = FALSE)
@@ -60,7 +60,7 @@ names(pal$qualitative) = 1:length(pal$qualitative)
 proj_random_tm = "+proj=tmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +units=m"
 
 # set fullframe as default theme
-#theme_set(theme_fullframe())
+
 theme_set(theme_void())
 # make randomness repeatable
 set.seed(101)
@@ -410,7 +410,7 @@ density(r)
 ```
 
 ```{r echo = FALSE}
-qplot(r[], geom = "density", fill = I("grey20")) + theme_fullframe()
+qplot(r[], geom = "density", fill = I("grey20"))
 ```
 
 ## histogram
@@ -419,8 +419,7 @@ hist(r)
 ```
 
 ```{r echo = FALSE}
-qplot(r[], geom = "histogram", fill = I("grey20"), binwidth = 1) + 
-  theme_fullframe()
+qplot(r[], geom = "histogram", fill = I("grey20"), binwidth = 1)
 ```
 
 ## Spatial autocorrelation
@@ -517,7 +516,7 @@ ggplot() + vr_geom_raster(r) + vr_geom_text(r, label = 1:100, family = "mono", s
                size = 2, colour = "#111111", linetype = "dashed")
 
 ggplot() + 
-  geom_polygon(data = extent_as_poly(extent(r)), aes(x = x, y = y), fill = NA, size = 2, colour = "#aaaaaaaa", linetype = "dashed") + theme_fullframe() + coord_equal() +
+  geom_polygon(data = extent_as_poly(extent(r)), aes(x = x, y = y), fill = NA, size = 2, colour = "#aaaaaaaa", linetype = "dashed") + coord_equal() +
   vr_geom_raster(intersect(r, g)) + 
   geom_polygon(data = extent_as_poly(g), aes(x = x, y = y), fill = NA, size = 2, colour = "black", linetype = "dashed")
   
@@ -656,7 +655,7 @@ ggplot() +
   geom_point(data = pts, aes(x = x, y = y, fill = factor(layer), label = coords), size = 6, shape = 21, color = I("#050505")) + 
   geom_point(data = pts, aes(x = x, y = y, color = factor(layer), label = coords), alpha = 0.5, size = 6, color = I("#050505"), shape = "+") + 
   geom_text(data = pts, aes(x = x, y = y, color = factor(layer), label = coords), size = 2, hjust = 0, vjust = 0, color = "#111111", angle = 45) +
-  coord_equal() +  theme_fullframe()
+  coord_equal()
 ```
 
 ## rasterToPolygons

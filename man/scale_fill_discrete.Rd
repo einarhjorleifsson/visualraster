@@ -4,7 +4,10 @@
 \alias{scale_fill_discrete}
 \title{Qualitative colour scale}
 \usage{
-scale_fill_discrete(values = RColorBrewer::brewer.pal(11, "Set3"), ...)
+scale_fill_discrete(
+  values = RColorBrewer::brewer.pal(n = 11, name = "Set3"),
+  ...
+)
 }
 \arguments{
 \item{values}{a set of ggplot2::aesthetic values to map data values to. If this is a
