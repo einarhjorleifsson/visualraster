@@ -4,17 +4,16 @@
 \alias{scale_fill_discrete}
 \title{Qualitative colour scale}
 \usage{
-scale_fill_discrete(values = brewer.pal(11, "Set3"), ...)
+scale_fill_discrete(values = RColorBrewer::brewer.pal(11, "Set3"), ...)
 }
 \arguments{
-\item{values}{a set of aesthetic values to map data values to. If this is a 
+\item{values}{a set of ggplot2::aesthetic values to map data values to. If this is a
 named vector, then the values will be matched based on the names. If unnamed,
- values will be matched in order (usually alphabetical) with the limits of 
+ values will be matched in order (usually alphabetical) with the limits of
  the scale. Any data values that don't match will be given na.value.}
 
-\item{...}{Other arguments passed on to \code{\link{scale_fill_manual}}}
+\item{...}{Other arguments passed on to [ggplot2::scale_fill_manual()]}
 }
 \description{
 Overrides the default discrete gradient to use color brewer Set 3
 }
-

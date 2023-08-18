@@ -11,12 +11,11 @@ vr_geom_text(r, color = I("#222222"), label = NULL, ...)
 
 \item{color}{\code{color} line colors}
 
-\item{label}{to override default labelling (raster values), you can provide 
+\item{label}{to override default labelling (raster values), you can provide
 a vector of length \code{ncell(r)}}
 
-\item{...}{other arguments passed to \code{\link{geom_text}}}
+\item{...}{other arguments passed to [ggplot2::geom_text()]}
 }
 \description{
 Custom visual raster text plot (for raster values and indexes)
 }
-

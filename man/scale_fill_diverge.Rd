@@ -4,8 +4,7 @@
 \alias{scale_fill_diverge}
 \title{Smooth gradient for diverging data}
 \usage{
-scale_fill_diverge(low = "#D53E4F", high = "#3288BD", center = "#FFFFBF",
-  ...)
+scale_fill_diverge(low = "#D53E4F", high = "#3288BD", center = "#FFFFBF", ...)
 }
 \arguments{
 \item{low}{Colour for low end of the gradient}
@@ -14,9 +13,8 @@ scale_fill_diverge(low = "#D53E4F", high = "#3288BD", center = "#FFFFBF",
 
 \item{center}{Colour for center of the gradient (default very close to white)}
 
-\item{...}{Other arguments passed on to \code{\link{scale_fill_gradientn}}}
+\item{...}{Other arguments passed on to [ggplot2::scale_fill_gradientn()]}
 }
 \description{
 Smooth gradient for diverging data
 }
-

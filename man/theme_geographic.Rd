@@ -2,10 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_geographic}
 \alias{theme_geographic}
-\title{A minimalist ggplot2 theme for ploting geographic rasters
- 
-Alters \code{\link{theme_fullframe}} by adding x axis elements to indicate
-longitude. This theme is used for illustrating \code{\link{rotate}}}
+\title{A minimalist ggplot2 theme for ploting geographic rasters}
 \usage{
 theme_geographic(base_size = 12, base_family = "")
 }
@@ -15,12 +12,9 @@ theme_geographic(base_size = 12, base_family = "")
 \item{base_family}{\code{character} base font family}
 }
 \value{
-An object of class \code{\link{theme}}.
+An object of class [ggplot2::theme()].
 }
 \description{
-A minimalist ggplot2 theme for ploting geographic rasters
- 
 Alters \code{\link{theme_fullframe}} by adding x axis elements to indicate
-longitude. This theme is used for illustrating \code{\link{rotate}}
+longitude. This theme is used for illustrating [raster::rotate()]
 }
-

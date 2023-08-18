@@ -9,19 +9,18 @@ Description: Illustrate spatial operations available in raster package.
 License: GPL
 URL: http://github.com/etiennebr/visualraster
 BugReports: http://github.com/etiennebr/visualraster/issues
+Encoding: UTF-8
 Depends:
+    R (>= 4.0.0)
+Import:
     ggplot2,
-    igraph,
-    fields,
-    maps,
-    mapproj,
-    rgeos,
-    raster,
-    reshape,
-    grid,
-    methods,
     RColorBrewer,
-    knitr,
-    xtable
-VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+    raster,
+    stats
+Suggest:
+    maps,
+    mapsproj,
+    sf
+RoxygenNote: 7.2.3
+Suggests: 
+    rmarkdown

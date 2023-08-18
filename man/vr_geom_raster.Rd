@@ -13,9 +13,8 @@ vr_geom_raster(r, color = I("#222222"), size = I(0.2), ...)
 
 \item{size}{\code{integer} line size}
 
-\item{...}{other arguments passed to \code{\link{geom_tile}}}
+\item{...}{other arguments passed to [ggplot2::geom_tile()].}
 }
 \description{
 Uses discrete values (maximum 11)
 }
-

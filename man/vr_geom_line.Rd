@@ -13,9 +13,8 @@ vr_geom_line(l, size = 2, color = "#11111199", ...)
 
 \item{color}{\code{color} line colors}
 
-\item{...}{other arguments passed to \code{\link{geom_line}}}
+\item{...}{other arguments passed to [ggplot2::geom_line()]}
 }
 \description{
 Custom visual raster line plot
 }
-

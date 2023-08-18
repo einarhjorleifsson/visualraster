@@ -16,6 +16,5 @@ Tranditional flowdir directions are expressed in power of two where 1 is East,
 2 is South-East, 4 is South, 8 is South-West, etc.
 }
 \seealso{
-\link{terrain}
+[raster::terrain()]
 }
-

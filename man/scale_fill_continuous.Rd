@@ -11,9 +11,8 @@ scale_fill_continuous(low = "#FFFFB3", high = "#FB8072", ...)
 
 \item{high}{Colour for high end of the gradient}
 
-\item{...}{Other arguments passed on to \code{\link{scale_fill_continuous}}}
+\item{...}{Other arguments passed on to [ggplot2::scale_fill_continuous()]}
 }
 \description{
 Overrides the default continuous gradient as a yellow to red
 }
-

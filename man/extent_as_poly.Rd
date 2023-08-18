@@ -15,4 +15,3 @@ extent_as_poly(e)
 \description{
 Transform raster extent to polygon
 }
-

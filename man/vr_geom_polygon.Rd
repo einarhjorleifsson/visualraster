@@ -7,8 +7,8 @@
 vr_geom_polygon(p, size = 1, fill = "#22222280", color = "#11111199", ...)
 }
 \arguments{
-\item{p}{\code{data.frame} containing at least \code{x} and \code{y} column 
-(see \code{\link{fortify}} for a transforming spatial polygons)}
+\item{p}{\code{data.frame} containing at least \code{x} and \code{y} column
+(see [ggplot2::fortify()] for a transforming spatial polygons)}
 
 \item{size}{\code{integer} line size}
 
@@ -16,9 +16,8 @@ vr_geom_polygon(p, size = 1, fill = "#22222280", color = "#11111199", ...)
 
 \item{color}{\code{color} border colors}
 
-\item{...}{other arguments passed to \code{\link{geom_polygon}}}
+\item{...}{other arguments passed to [ggplot2::geom_polygon]}
 }
 \description{
 Custom visual raster polygon plot
 }
-

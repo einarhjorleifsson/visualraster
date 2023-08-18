@@ -22,4 +22,3 @@ transform Raster* to data frame ready for ggplot2
 \details{
 \code{melt} is used to facilitate ploting of raster stacks
 }
-

@@ -13,13 +13,12 @@ vr_geom_raster_seq(r, color = I("#222222"), size = I(0.2), ...)
 
 \item{size}{\code{integer} line size}
 
-\item{...}{other arguments passed to \code{\link{geom_tile}}}
+\item{...}{other arguments passed to [ggplot2::geom_tile()].}
 }
 \description{
 Custom visual raster plot for sequential data
 }
 \details{
-if \code{ncell(r) > 5e2} will use geom_raster by default for 
+if \code{ncell(r) > 5e2} will use geom_raster by default for
 performance
 }
-

@@ -14,4 +14,3 @@ vr_geom_raster_div(r, ...)
 \description{
 Custom visual raster plot for diverging data
 }
-
