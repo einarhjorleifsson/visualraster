@@ -26,8 +26,7 @@ and raster package version
 `r packageVersion("raster")`)
 
 Source code and package available at https://github.com/etiennebr/visualraster. 
-Suggestions, contributions, feature request, and bug report are appreciated and 
-help to keep that project alive.
+Suggestions, contributions, feature request, and bug report are appreciated and help to keep that project alive.
 
 ***
 
@@ -36,7 +35,7 @@ library("knitr")
 library("xtable")
 
 # modify stylesheet
-options(markdown.HTML.stylesheet = system.file('misc', 'vr_vignette.css', package='visualraster')) 
+options(markdown.HTML.stylesheet = system.file('misc', 'vr_vignette.css', package='visualraster'))
 # xtable params
 options(xtable.type = "html")
 options(xtable.include.rownames = FALSE)
@@ -44,20 +43,11 @@ options(xtable.include.rownames = FALSE)
 
 
 ```{r echo = FALSE, cache = FALSE, message = FALSE}
-
-#library("igraph")    # boundaries and clumps
-#library("fields")    # Tps for interpolation, predict.se
-#library("maps")      # world data
-#library("mapproj")   # projections in ggplot2
-#library("rgeos")
 library("raster")
-
-#library("reshape")
-
 library("grid")
 library("ggplot2")
+library(patchwork)
 library("RColorBrewer")
-
 library("visualraster")
 
 # define palette of colors
@@ -70,8 +60,8 @@ names(pal$qualitative) = 1:length(pal$qualitative)
 proj_random_tm = "+proj=tmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +units=m"
 
 # set fullframe as default theme
-theme_set(theme_fullframe())
-
+#theme_set(theme_fullframe())
+theme_set(theme_void())
 # make randomness repeatable
 set.seed(101)
 ```
@@ -588,20 +578,23 @@ r2[] = 1
 mosaic(r, r1, r2, fun = sum)
 ```
 
-```{r echo = FALSE}
+```{r echo = FALSE, fig.width = 8, fig.height = 8}
 r_mos = mosaic(r, r1, r2, fun = sum, na.rm = TRUE)
 r_mos[is.nan(r_mos)] = NA
 # plot rasters seperately
 mos_grid = geom_tile(data = as_data(r_mos), 
             aes(x = x, y = y, fill = NA), color = "#aaaaaa")
 
-ggplot() + vr_geom_raster(r) + mos_grid
-ggplot() + vr_geom_raster(r1) + mos_grid
-ggplot() + vr_geom_raster(r2) + mos_grid
-```
+p1 <- ggplot() + mos_grid + vr_geom_raster(r) + vr_geom_text(r, size = 2) +
+  labs(subtitle = "r")
+p2 <- ggplot() + mos_grid + vr_geom_raster(r1) + vr_geom_text(r1, size = 2) +
+  labs(subtitle = "r1")
+p3 <- ggplot() + mos_grid + vr_geom_raster(r2) + vr_geom_text(r2, size = 2) + 
+  labs(subtitle = "r2")
+p4 <- ggplot() + vr_geom_raster(r_mos) + vr_geom_text(r_mos, size = 2) +
+  labs(subtitle = "(mosaic(r, r1, r2, fun = sum, na.rm = TRUE)")
 
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_mos) + vr_geom_text(r_mos, size = 2)
+p1 + p2 + p3 + p4
 ```
 
 ## projection

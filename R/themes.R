@@ -9,6 +9,7 @@
 theme_fullframe = function (base_size = 12, base_family = ""){
   ggplot2::theme_grey(base_size = base_size, base_family = base_family) %+replace%
     ggplot2::theme(
+      plot.subtitle = element_text(margin = margin()),
       axis.line = ggplot2::element_blank(),
       axis.text.x = ggplot2::element_blank(),
       axis.text.y = ggplot2::element_blank(),
@@ -16,16 +17,17 @@ theme_fullframe = function (base_size = 12, base_family = ""){
       axis.title.x = ggplot2::element_blank(),
       axis.title.y = ggplot2::element_blank(),
       axis.ticks.length = grid::unit(0, "lines"),
-      legend.position = "none",
+      #legend.position = "none",
       panel.background = ggplot2::element_blank(),
       panel.border = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank(),
-      panel.margin = grid::unit(0, "lines"),
+      panel.spacing = grid::unit(0, "lines"),
       plot.background = ggplot2::element_blank(),
       strip.background = ggplot2::element_rect(colour = "#ffffff", fill="#eeeeee")
     )
 }
+
 
 #' A minimalist ggplot2 theme for ploting geographic rasters
 #'

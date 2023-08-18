@@ -6,7 +6,7 @@
 #' @param ... Other arguments passed on to [ggplot2::scale_fill_continuous()]
 #' @export
 scale_fill_continuous = function(low = "#FFFFB3", high = "#FB8072", ...) {
-  ggplot2::scale_fill_gradient(low = low, high = high, ...)
+  ggplot2::scale_fill_gradient(low = low, high = high, guide = "none", ...)
 }
 
 #' Qualitative colour scale
@@ -19,7 +19,7 @@ scale_fill_continuous = function(low = "#FFFFB3", high = "#FB8072", ...) {
 #' @param ... Other arguments passed on to [ggplot2::scale_fill_manual()]
 #' @export
 scale_fill_discrete = function(values = RColorBrewer::brewer.pal(11, "Set3"), ...) {
-  ggplot2::scale_fill_manual(values = values, ...)
+  ggplot2::scale_fill_manual(values = values, guide = "none", ...)
 }
 
 #' Smooth gradient for diverging data
@@ -31,5 +31,5 @@ scale_fill_discrete = function(values = RColorBrewer::brewer.pal(11, "Set3"), ..
 #' @export
 scale_fill_diverge = function(low = "#D53E4F", high = "#3288BD",
                                  center = "#FFFFBF", ...) {
-  ggplot2::scale_fill_gradientn(colours = c(low, center, high), ...)
+  ggplot2::scale_fill_gradientn(colours = c(low, center, high), guide = "none", ...)
 }
