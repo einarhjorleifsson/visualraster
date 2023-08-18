@@ -19,11 +19,12 @@ Imports:
     RColorBrewer,
     reshape2,
     stats
-Suggest:
-    maps,
-    mapsproj,
-    sf
 RoxygenNote: 7.2.3
-Suggests: 
+Suggests:
+    fields,
+    igraph,
     knitr,
-    rmarkdown
+    patchwork,
+    rmarkdown,
+    sf,
+    xtable
