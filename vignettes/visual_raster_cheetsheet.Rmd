@@ -13,8 +13,8 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   dev = c("png"),
-  fig.height = 4, 
-  fig.width = 4, 
+  fig.height = 3, 
+  fig.width = 9, 
   comment = "#>"
 )
 ```
@@ -43,11 +43,10 @@ options(xtable.include.rownames = FALSE)
 
 
 ```{r echo = FALSE, cache = FALSE, message = FALSE}
-library("raster")
-library("grid")
-library("ggplot2")
+library(raster)
+library(ggplot2)
 library(patchwork)
-library("RColorBrewer")
+library(RColorBrewer)
 library("visualraster")
 
 # define palette of colors
@@ -59,8 +58,27 @@ names(pal$qualitative) = 1:length(pal$qualitative)
 
 proj_random_tm = "+proj=tmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +units=m"
 
+x <- as.vector(pal$qualitative)
+cols <- c("0" = x[1], "1" = x[2], "2"= x[3], "3" = x[4], "4" = x[5], "5" = x[6],
+          "6" = x[7], "7" = x[8], "8" = x[9], "9" = x[10])
+
 
 theme_set(theme_void())
+
+lh <- function(r, text = TRUE) {
+  p <- 
+    ggplot() + 
+    vr_geom_raster(r)
+  if(text) {
+    p <- p + vr_geom_text(r) 
+    }
+  p <- 
+    p +
+    scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none")
+  return(p)
+}
 # make randomness repeatable
 set.seed(101)
 ```
@@ -75,7 +93,10 @@ r = raster(matrix(sample(1:9, 100, replace = TRUE), 10, 10))
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r) + vr_geom_text(r)
+p0 <- 
+  lh(r) +
+  labs(subtitle = "r")
+p0
 ```
 
 ## write
@@ -84,21 +105,10 @@ writeRaster(r, "raster.tif")
 ```
 
 ## read
-```{r eval = FALSE, echo = FALSE}
-# this chunk if for house keeping when running chunks without knitr
-.r = r
-```
-
 ```{r eval = FALSE}
 r = raster("raster.tif")
 ```
 
-
-```{r eval = FALSE, echo = FALSE}
-# this chunk if for house keeping when running chunks without knitr
-file.remove("raster.tif")
-r = .r
-```
 
 # Local
 Local analysis consider cells independently
@@ -154,7 +164,6 @@ Add vectors
 ggplot() + vr_geom_raster(r) + 
   vr_geom_text(r, family = "mono", size = 3, label = 1:100) +
   gln + gpt + gpy
-  
 ```
 
 ### Cell from point
@@ -175,72 +184,62 @@ cellFromLine(r, ln)
 cellFromPolygon(r, poly)
 ```
 
-## aggregate
-```{r}
-r_agg = aggregate(r, 2)
-```
+## aggregate - disaggregate
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_agg) + vr_geom_text(r_agg)
-```
-
-## disaggregate
-```{r}
+r_agg = aggregate(r, 2, fun = mean)
 r_dis = disaggregate(r, 2)
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(round(r_dis)) + vr_geom_text(r_dis)
+p1 <- lh(r_agg) + labs(subtitle = "aggregate(r, 2, fun = mean)")
+p2 <- lh(r_dis) + labs(subtitle = "disaggregate(r, 2)")
+p0 + p1 + p2
 ```
 
 ## cover
-```{r}
+
+```{r echo = FALSE}
 r_missing = raster(matrix(NA, 10, 10))
 r_missing[41:60] = 6
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_missing) + vr_geom_text(r_missing)
-```
-
-```{r}
 r_covered = cover(r_missing, r)
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_covered) + vr_geom_text(r_covered)
+p1 <- lh(r_missing) + labs(subtitle = "r_missing")
+p2 <- lh(r_covered) + labs(subtitle = "cover(r_missing, r")
+p0 + p1 + p2
 ```
 
 ## mask
-```{r}
-r_masked = mask(r, r_missing)
-```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_masked) + vr_geom_text(r_masked)
+r_masked  = mask(r, r_missing)
+p2 <- lh(r_masked)  + labs(subtitle = "mask(r, r_missing)")
+p0 + p1 + p2
 ```
 
 ## calc
 ```{r}
-fun = function(x) { x * 10 }
-r_mul = calc(r, fun)
+f = function(x) { x * 10 }
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_mul / 10) + vr_geom_text(r_mul)
+r_mul = calc(r, fun = f)
+p1 <- 
+  ggplot() + 
+  vr_geom_raster(r_mul / 10) + 
+  vr_geom_text(r_mul) +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
+  labs(subtitle = "calc(r, fun = f)")
+p0 + p1
 ```
 
 ## overlay
-```{r}
+```{r, echo = FALSE}
 r1 = init(r, function(x) sample(5:6, x, replace = TRUE))
-r2 = init(r, function(x) sample(1:2, x, replace = TRUE))
-r3 = overlay(r1, r2, fun=function(x,y){return(x+y)})
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r1) + vr_geom_text(r1)
-ggplot() + vr_geom_raster(r2) + vr_geom_text(r2)
-ggplot() + vr_geom_raster(r3) + vr_geom_text(r3)
+r2 = init(r, function(x) sample(0:1, x, replace = TRUE))   # was 1:2
+r3 = overlay(r1, r2, fun=sum)
+p1 <- lh(r1) + labs(subtitle = "r1")
+p2 <- lh(r2) + labs(subtitle = "r2")
+p3 <- lh(r3) + labs(subtitle = "overlay(r1, r2, fun = sum)") 
+p1 + p2 + p3
 ```
 
 ## distance
@@ -253,15 +252,17 @@ r_origin[c(15, 16, 45)] = 1
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_origin) + vr_geom_text(r_origin)
-```
-
-```{r}
-r_dist = distance(r_origin) 
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster_seq(r_dist) + vr_geom_text(r_dist)
+p1 <- lh(r_origin) + labs(subtitle = "r_origin")
+r_dist = distance(r_origin)
+p2 <- 
+  ggplot() + 
+  vr_geom_raster(r_dist) + 
+  vr_geom_text(r_dist) + 
+  labs(subtitle = "distance(r_origin)") +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none")
+p1 + p2
 ```
 
 ## reclassify
@@ -270,19 +271,17 @@ m = cbind(
   from    = c(0, 2, 4), 
   to      = c(2, 4, 6), 
   becomes = c(1, 2, 3)
-  )
+)
 ```
 
 ```{r echo = FALSE, results = 'asis'}
 xtable(m, digits = 0)
 ```
 
-```{r}
+```{r, echo = FALSE}
 r_reclass = reclassify(r_dist, m)
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_reclass) + vr_geom_text(r_reclass)
+p3 <- lh(r_reclass) + labs(subtitle = "reclassify(r_dist, m)")
+p2 + p3
 ```
 
 # Focal
@@ -290,21 +289,26 @@ Focal analysis consider a cell plus its direct neighbours in a contiguous and sy
 
 ## focal
 ```{r}
+
 r_focal = focal(r, fun = mean, w = matrix(1/9,nrow=3,ncol=3))
+r_focal = focal(r, fun = mean, w = matrix(1,nrow=3,ncol=3))
 ```
 
 ```{r, echo = FALSE}
-ggplot() + vr_geom_raster_seq(r) + vr_geom_text(r)
-ggplot() + vr_geom_raster_seq(r_focal) + vr_geom_text(r_focal)
+p1 <- lh(r_focal) +
+  #ggplot() + 
+  #vr_geom_raster_seq(r_focal) + 
+  #vr_geom_text(r_focal) +
+  labs(subtitle = "focal(r, fun = mean, w = matrix(1,nrow=3,ncol=3))")
+p0 + p1
 ```
 
 You can remove edge effect by ignoring NA values
-```{r}
-r_focal_nedge = focal(r, fun = mean, w = matrix(1/9,nrow=3,ncol=3), na.rm = TRUE, pad = TRUE)
-```
-
 ```{r, echo = FALSE}
-ggplot() + vr_geom_raster_seq(r_focal_nedge) + vr_geom_text(r_focal_nedge)
+r_focal_nedge = focal(r, fun = mean, w = matrix(1,nrow=3,ncol=3), na.rm = T, pad = T)
+# ggplot() + vr_geom_raster_seq(r_focal_nedge) + vr_geom_text(r_focal_nedge)
+p1 <- lh(r_focal_nedge) + labs(subtitle = "focal(r, fun = mean, w = matrix(1,nrow=3,ncol=3), na.rm = T, pad = T)")
+p0 + p1
 ```
 
 # Zonal
@@ -316,7 +320,7 @@ m = cbind(
   from    = c(0, 2, 4), 
   to      = c(2, 4, 8), 
   becomes = c(1, 2, 3)
-  )
+)
 z = reclassify(r_dist, m)
 extent(z) = extent(r)
 ```
@@ -339,36 +343,25 @@ xtable(zones, digits = c(0, 0, 1))
 ## clump
 ```{r echo = FALSE}
 r_bin = raster(matrix(round(runif(100, max = 0.69)), 10, 10))
-```
-
-```{r}
 r_clumps = clump(r_bin)
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_bin) + vr_geom_text(r_bin)
-ggplot() + vr_geom_raster(r_clumps) + vr_geom_text(r_clumps)
+p1 <- lh(r_bin) + labs(subtitle = "r_bin")
+p2 <- lh(r_clumps) + labs(subtitle = "clump(r_bin)")
+p1 + p2
 ```
 
 ## boundaries
-```{r}
-require("igraph")
-r_clus = init(r, function(x) ifelse(runif(x) > 0.2, 1, NA))
+```{r, echo = FALSE}
+r_clus = init(r, function(x) ifelse(runif(x) > 0.1, 1, NA))
 r_boundaries = raster::boundaries(r_clus)
-```
-
-```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_clus) + vr_geom_text(r_clus)
-ggplot() + vr_geom_raster(r_boundaries) + vr_geom_text(r_boundaries)
+p1 <- lh(r_clus) + labs(subtitle = "r_clus")
+p2 <- lh(r_boundaries) + labs(subtitle = "boundaries(r_clus)")
+p1 + p2
 ```
 
 ## extract
 ```{r echo = FALSE}
 # plot geometries, this time with values
-ggplot() + vr_geom_raster(r) + vr_geom_text(r) +
-  gpt +
-  gln +
-  gpy
+p0 + gpt + gln + gpy
 ```
 
 ```{r}
@@ -378,11 +371,6 @@ extract(r, poly)
 ```
 
 ## rasterize
-```{r, eval = FALSE}
-rasterize(pt, r)
-rasterize(ln, r)
-rasterize(poly, r)
-```
 
 ```{r echo = FALSE}
 r_pt   = rasterize(pt, r)
@@ -392,10 +380,10 @@ r_poly = rasterize(poly, r)
 pts = as.data.frame(rasterToPoints(r))
 gpts = geom_point(data = pts, aes(x = x, y = y), 
                   size = 2, shape = 20, color = I("#00000055"))
-
-ggplot() + vr_geom_raster(r_pt) + gpt
-ggplot() + vr_geom_raster(r_line) + gln
-ggplot() + vr_geom_raster(r_poly) + gpts + gpy
+p1 <- lh(r_pt, FALSE) + gpt + labs(subtitle = "rasterize(pt, r)")
+p2 <- lh(r_line, FALSE) + gln + labs(subtitle = "rasterize(ln, r)")
+p3 <- lh(r_poly, FALSE) + gpy + labs(subtitle = "rasterize(poly, r)")
+p1 + p2 + p3
 ```
 
 Note that polygon rasterization is by default looking at cell centroid overlap, 
@@ -432,13 +420,13 @@ label_me = function (x, dec = 2) {
   paste0(
     "Moran = ", round(Moran(x), dec), "\n", 
     "Geary = ", round(Geary(x), dec)
-    )
+  )
 }
 autocor_plot = function(x) {
   ggplot() +
-  list(vr_geom_raster_seq(x),
-       vr_geom_text(x, size = 2),
-       ggtitle(label_me(x)))
+    list(vr_geom_raster_seq(x),
+         vr_geom_text(x, size = 2),
+         ggtitle(label_me(x)))
 }
 
 r_plain = init(r, function(x) 1)
@@ -449,15 +437,15 @@ r_split[1:50] = 1
 r_split[51:100] = 2
 
 the_rs = list(r, 
-       r_dist, 
-       r_plain, 
-       r_split, 
-       init(r, fun = function(x) rep(1:2, length = x)),
-       init(r, fun = function(x) rep(1:3, length = x)),
-       init(r, fun = function(x) rep(1:4, length = x)),
-       init(r, fun = function(x) rep(1:5, length = x)),
-       init(r, fun = function(x) rep(1:6, length = x))
-       )
+              r_dist, 
+              r_plain, 
+              r_split, 
+              init(r, fun = function(x) rep(1:2, length = x)),
+              init(r, fun = function(x) rep(1:3, length = x)),
+              init(r, fun = function(x) rep(1:4, length = x)),
+              init(r, fun = function(x) rep(1:5, length = x)),
+              init(r, fun = function(x) rep(1:6, length = x))
+)
 
 for (w in the_rs) print(autocor_plot(w))
 ```
@@ -469,56 +457,63 @@ extent(r)
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r) +
-geom_polygon(data = extent_as_poly(r), aes(x = x, y = y), fill = "#ffffffaa", size = 2, colour = "black", linetype = "dashed")
+p0 +
+  geom_polygon(data = extent_as_poly(r), aes(x = x, y = y), fill = "#ffffffaa", size = 1, colour = "black", linetype = "dashed")
 ```
 
 ## crop
 ```{r eval = TRUE}
-f = extent(0.23, 0.86, 0.22, 0.73)
+e = extent(0.23, 0.86, 0.22, 0.73)
 ```
 
-```{r eval = FALSE}
-crop(r, f)
-```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r) +
-geom_polygon(data = extent_as_poly(f), aes(x = x, y = y), fill = "#ffffffaa", size = 2, colour = "black", linetype = "dashed") + gpts
+p1 <- 
+  lh(r, FALSE) +
+  geom_polygon(data = extent_as_poly(e), aes(x = x, y = y), fill = "#ffffffaa", size = 1, colour = "black", linetype = "dashed") + gpts +
+  labs(subtitle = "r")
 
-r_crop = crop(r, f)
-
-ggplot() + vr_geom_raster(crop(r, f)) + 
-  geom_polygon(data = extent_as_poly(f), 
+r_crop = crop(r, e)
+p2 <- 
+  lh(r_crop, FALSE) +
+#ggplot() + vr_geom_raster(crop(r, f)) + 
+  geom_polygon(data = extent_as_poly(e), 
                aes(x = x, y = y), 
-               fill = NA, size = 2, 
+               fill = NA, size = 1, 
                colour = "black",
                linetype = "dashed") + 
   geom_polygon(data = extent_as_poly(r), 
-               aes(x = x, y = y), fill = NA, size = NA) + gpts
+               aes(x = x, y = y), fill = NA, size = NA) + gpts +
+  labs(subtitle = "crop(r, e)")
+p1 + p2
 ```
 
 ## intersect
 ```{r}
 g = extent(0.43, 1.1, -0.1, 0.53)
 ```
-
-```{r eval = FALSE}
-intersect(r, g)
-```
+`
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r) + vr_geom_text(r, label = 1:100, family = "mono", size = 3) +
+p1 <-
+  lh(r, FALSE) +
   geom_polygon(data = extent_as_poly(g), 
                aes(x = x, y = y), 
                fill = NA, 
-               size = 2, colour = "#111111", linetype = "dashed")
+               size = 1, colour = "#111111", linetype = "dashed") +
+  labs(subtitle = "r")
 
-ggplot() + 
-  geom_polygon(data = extent_as_poly(extent(r)), aes(x = x, y = y), fill = NA, size = 2, colour = "#aaaaaaaa", linetype = "dashed") + coord_equal() +
+p2 <- 
+  ggplot() + 
+  geom_polygon(data = extent_as_poly(extent(r)), aes(x = x, y = y), fill = NA, size = 1, colour = "#aaaaaaaa", linetype = "dashed") + 
+  #coord_equal() +
   vr_geom_raster(intersect(r, g)) + 
-  geom_polygon(data = extent_as_poly(g), aes(x = x, y = y), fill = NA, size = 2, colour = "black", linetype = "dashed")
-  
+  geom_polygon(data = extent_as_poly(g), aes(x = x, y = y), fill = NA, size = 1, colour = "black", linetype = "dashed") +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
+  labs(subtitle = "intersect(r, g)")
+p1 + p2
 ```
 
 ### cellsFromExtent
@@ -538,7 +533,7 @@ r_union = union(extent(r), g)
 ggplot() + 
   geom_polygon(data = extent_as_poly(g), aes(x = x, y = y), fill = NA, size = 2, colour = "#aaaaaaaa", linetype = "dashed") +
   geom_polygon(data = extent_as_poly(r), aes(x = x, y = y), fill = NA, size = 2, colour = "#aaaaaaaa", linetype = "dashed") +
-geom_polygon(data = extent_as_poly(r_union), aes(x = x, y = y), fill = NA, size = 2, colour = "#111111", linetype = "dashed")  + coord_equal()
+  geom_polygon(data = extent_as_poly(r_union), aes(x = x, y = y), fill = NA, size = 2, colour = "#111111", linetype = "dashed")  + coord_equal()
 ```
 
 
@@ -548,50 +543,50 @@ flip(r_split, "y")
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(r_split)
-
-ggplot() + vr_geom_raster(flip(r_split, "y"))
+p1 <- lh(r_split) + labs(subtitle = "r_spit")
+p2 <- lh(flip(r_split, "y")) + labs(subtitle = 'flip(r_split, "y")')
+p1 + p2
 ```
 
 ## extend
-```{r eval = FALSE}
-extend(r, 3)
-```
-
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster(extend(r, 3))
+p1 <- lh(extend(r, 3)) + labs(subtitle = "extend(r, 3)")
+p0 + p1
 ```
 
 ## mosaic
 
-```{r echo = FALSE}
+```{r echo = FALSE, fig.width = 8, fig.height = 8}
 # prepare data
 r1 = raster::shift(r, dx = 0.3, dy = 0.2)
 r1[] = 1
 r2 = raster::shift(r, dx = -0.6, dy = -0.6)
 r2[] = 1
-```
-
-```{r eval = FALSE}
-mosaic(r, r1, r2, fun = sum)
-```
-
-```{r echo = FALSE, fig.width = 8, fig.height = 8}
 r_mos = mosaic(r, r1, r2, fun = sum, na.rm = TRUE)
 r_mos[is.nan(r_mos)] = NA
 # plot rasters seperately
 mos_grid = geom_tile(data = as_data(r_mos), 
-            aes(x = x, y = y, fill = NA), color = "#aaaaaa")
-
+                     aes(x = x, y = y, fill = NA), color = "#aaaaaa")
 p1 <- ggplot() + mos_grid + vr_geom_raster(r) + vr_geom_text(r, size = 2) +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
   labs(subtitle = "r")
 p2 <- ggplot() + mos_grid + vr_geom_raster(r1) + vr_geom_text(r1, size = 2) +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
   labs(subtitle = "r1")
 p3 <- ggplot() + mos_grid + vr_geom_raster(r2) + vr_geom_text(r2, size = 2) + 
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
   labs(subtitle = "r2")
 p4 <- ggplot() + vr_geom_raster(r_mos) + vr_geom_text(r_mos, size = 2) +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
   labs(subtitle = "(mosaic(r, r1, r2, fun = sum, na.rm = TRUE)")
-
 p1 + p2 + p3 + p4
 ```
 
@@ -614,17 +609,20 @@ ggplot() +
 ```
 
 ## rasterToPolygons
-```{r}
-pols = rasterToPolygons(r_clumps, dissolve = TRUE)
-```
-
 ```{r echo = FALSE, message = FALSE}
+pols = rasterToPolygons(r_clumps, dissolve = TRUE)
+p1 <- lh(r_clumps) + labs(subtitle = "r")
 pols_fortify = fortify(pols)
-
-ggplot() + vr_geom_raster(r_clumps, color = "#111111") +
+p2 <- 
+  ggplot() + 
+  vr_geom_raster(r_clumps, color = "#111111") +
   geom_polygon(data = pols_fortify, aes(x = long, y = lat, group = group, color = id), fill = NA, size = 2) +
   geom_polygon(data = pols_fortify, aes(x = long, y = lat, group = group), fill = NA, size = 2, color = I("#00000055")) +
-  scale_color_manual(values = pal$qualitative) 
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none") +
+  labs(subtitle = "rasterToPolygons(r, dissolve = T)")
+p1 + p2
 ```
 
 # Terrain
