@@ -25,4 +25,5 @@ Suggests:
     knitr,
     patchwork,
     rmarkdown,
+    tidyterra,
     xtable
