@@ -109,12 +109,10 @@ writeRaster(r, "raster.tif")
 r = raster("raster.tif")
 ```
 
-
 # Local
 Local analysis consider cells independently
 
 ## Access
-Direct index `r[i]`
 
 ```{r echo = FALSE}
 # generate point
@@ -142,20 +140,32 @@ gpy = vr_geom_polygon(cpp)
 ```
 
 ```{r echo = FALSE}
-ggplot() + 
-  vr_geom_raster(r) + 
-  vr_geom_text(r, label = 1:100, family = "mono", size = 3)
+p1 <- 
+  lh(r, FALSE) +
+  #vr_geom_raster(r) + 
+  vr_geom_text(r, label = 1:100, family = "mono", size = 3) +
+  labs(subtitle = "Direct index `r[13]`")
 ```
-
-Using line and columns `r[lin, col]`
 
 ```{r echo = FALSE}
 grd = expand.grid(col = 1:10, lin = 1:10)
 ref = with(grd, paste0(lin, ",", col))
-ggplot() + 
+p2 <- 
+  lh(r) +
   vr_geom_raster(r) +
-  vr_geom_text(r, family = "mono", size = 3, label = ref)
+  vr_geom_text(r, family = "mono", size = 3, label = ref) +
+  labs(subtitle = "Using line and columns `r[2, 3]`")
+p0 + p1 + p2
 ```
+
+```{r}
+r[13]
+r[2, 3]
+r[2,  ]
+r[ , 3]
+#r[2:3, , drop = FALSE] |> lh()
+```
+
 
 Add vectors
 
@@ -198,7 +208,7 @@ p0 + p1 + p2
 
 ```{r echo = FALSE}
 r_missing = raster(matrix(NA, 10, 10))
-r_missing[41:60] = 6
+r_missing[41:60] = 0
 r_covered = cover(r_missing, r)
 p1 <- lh(r_missing) + labs(subtitle = "r_missing")
 p2 <- lh(r_covered) + labs(subtitle = "cover(r_missing, r")
@@ -248,11 +258,11 @@ We need a raster containing origins to compute distances (so we need units)
 r_origin = raster(matrix(NA, 10, 10))
 extent(r_origin) = extent(c(0, 10, 0, 10))
 projection(r_origin) = "+proj=tmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +units=m"
-r_origin[c(15, 16, 45)] = 1
+r_origin[c(15, 16, 45)] = 0
 ```
 
 ```{r echo = FALSE}
-p1 <- lh(r_origin) + labs(subtitle = "r_origin")
+p1 <- lh(r_origin, FALSE) + labs(subtitle = "r_origin")
 r_dist = distance(r_origin)
 p2 <- 
   ggplot() + 
@@ -269,7 +279,7 @@ p1 + p2
 ```{r}
 m = cbind(
   from    = c(0, 2, 4), 
-  to      = c(2, 4, 6), 
+  to      = c(2, 4, 8), 
   becomes = c(1, 2, 3)
 )
 ```
@@ -289,8 +299,6 @@ Focal analysis consider a cell plus its direct neighbours in a contiguous and sy
 
 ## focal
 ```{r}
-
-r_focal = focal(r, fun = mean, w = matrix(1/9,nrow=3,ncol=3))
 r_focal = focal(r, fun = mean, w = matrix(1,nrow=3,ncol=3))
 ```
 
@@ -303,7 +311,7 @@ p1 <- lh(r_focal) +
 p0 + p1
 ```
 
-You can remove edge effect by ignoring NA values
+One can remove edge effect by ignoring NA values
 ```{r, echo = FALSE}
 r_focal_nedge = focal(r, fun = mean, w = matrix(1,nrow=3,ncol=3), na.rm = T, pad = T)
 # ggplot() + vr_geom_raster_seq(r_focal_nedge) + vr_geom_text(r_focal_nedge)
@@ -315,6 +323,9 @@ p0 + p1
 Zonal analysis consider group of cells in an irregular, but conitguous (in space or value) manner.
 
 ## zonal
+
+QUO VADIS?
+
 ```{r echo = FALSE}
 m = cbind(
   from    = c(0, 2, 4), 
@@ -326,8 +337,12 @@ extent(z) = extent(r)
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster_seq(z) + vr_geom_text(z)
-ggplot() + vr_geom_raster(r) + vr_geom_text(r)
+p1 <- p0 + labs(subtitle = "r")
+p2 <- 
+  ggplot() + 
+  vr_geom_raster_seq(r) + 
+  vr_geom_text(z)
+p1 + p2
 ```
 
 ```{r eval = FALSE}
@@ -350,11 +365,13 @@ p1 + p2
 ```
 
 ## boundaries
+
+"Detect boundaries (edges). boundaries are cells that have more than one class in the 4 or 8 cells surrounding it, or, if classes=FALSE, cells with values and cells with NA."
+
 ```{r, echo = FALSE}
-r_clus = init(r, function(x) ifelse(runif(x) > 0.1, 1, NA))
-r_boundaries = raster::boundaries(r_clus)
-p1 <- lh(r_clus) + labs(subtitle = "r_clus")
-p2 <- lh(r_boundaries) + labs(subtitle = "boundaries(r_clus)")
+r01 = init(r, function(x) ifelse(runif(x) > 0.15, 1, NA))
+p1 <- lh(r01) + labs(subtitle = "r")
+p2 <- lh(boundaries(r01)) + labs(subtitle = "boundaries(r)")
 p1 + p2
 ```
 
@@ -446,8 +463,18 @@ the_rs = list(r,
               init(r, fun = function(x) rep(1:5, length = x)),
               init(r, fun = function(x) rep(1:6, length = x))
 )
+```
 
-for (w in the_rs) print(autocor_plot(w))
+```{r echo = FALSE, fig.height = 9}
+res <- list()
+counter <- 0
+for(w in the_rs) {
+  counter <- counter + 1
+  res[[counter]] <- autocor_plot(w)
+  
+}
+res[[1]] + res[[2]] + res[[3]] + res[[4]] + res[[5]] +
+  res[[6]] + res[[7]] + res[[8]] + res[[9]]
 ```
 
 # Geometric
@@ -556,7 +583,7 @@ p0 + p1
 
 ## mosaic
 
-```{r echo = FALSE, fig.width = 8, fig.height = 8}
+```{r echo = FALSE, fig.height = 6}
 # prepare data
 r1 = raster::shift(r, dx = 0.3, dy = 0.2)
 r1[] = 1
@@ -627,24 +654,34 @@ p1 + p2
 
 # Terrain
 ```{r echo = FALSE}
-r_volcano = raster(volcano)
-extent(r_volcano) = extent(0, ncol(r_volcano),0, nrow(r_volcano))
-projection(r_volcano) =  proj_random_tm
+v = raster(volcano)
+extent(v) = extent(0, ncol(v),0, nrow(v))
+projection(v) =  proj_random_tm
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster_seq(r_volcano)
+p1 <- ggplot() + vr_geom_raster_seq(v) + labs(subtitle = "v") +
+  tidyterra::scale_fill_whitebox_c()
+p1
 ```
 
 ## terrain
 ```{r}
-r_terrain = terrain(r_volcano, opt = c("slope", "aspect", "tpi", "tri", "roughness", "flowdir"))
+r_terrain = terrain(v, opt = c("slope", "aspect", "tpi", "tri", "roughness", "flowdir"))
 ```
 
 
-```{r echo = FALSE}
-for(i in names(r_terrain)) 
-  print(ggplot() + vr_geom_raster_seq(r_terrain[[i]]) + ggtitle(i)) 
+```{r echo = FALSE, fig.height= 6}
+#for(i in names(r_terrain)) 
+#  print(ggplot() + vr_geom_raster_seq(r_terrain[[i]]) + labs(subtitle = (i)))
+res <- list()
+counter <- 0
+for(i in names(r_terrain)) {
+  counter <- counter + 1
+  res[[counter]] <- ggplot() + vr_geom_raster_seq(r_terrain[[i]]) + labs(subtitle = (i)) +
+    tidyterra::scale_fill_whitebox_c()
+}
+res[[1]] + res[[2]] + res[[3]] + res[[4]] + res[[5]] + res[[6]]
 ```
 
 Angular data can sometimes be better expressed using a circular palette. 
@@ -654,9 +691,12 @@ The preceeding figure had some sharp edges
 on North faces, when angle slightly changed from 360 to 0.
 
 ```{r echo = FALSE, message = FALSE}
-ggplot() + vr_geom_raster_seq(trim(r_terrain[["aspect"]])) + ggtitle("aspect") + scale_fill_gradientn(colours = pal$circular, limits = c(0, 2 * pi)) 
+p1 <- 
+  ggplot() + vr_geom_raster_seq(trim(r_terrain[["aspect"]])) + ggtitle("aspect") + scale_fill_gradientn(colours = pal$circular, limits = c(0, 2 * pi)) 
 
-ggplot() + vr_geom_raster_seq(power_to_angle(trim(r_terrain[["flowdir"]]))) + ggtitle("flowdir") + scale_fill_gradientn(colours = pal$circular, limits = c(0, 360)) 
+p2 <- 
+  ggplot() + vr_geom_raster_seq(power_to_angle(trim(r_terrain[["flowdir"]]))) + ggtitle("flowdir") + scale_fill_gradientn(colours = pal$circular, limits = c(0, 360)) 
+p1 + p2
 ```
 
 
@@ -666,43 +706,49 @@ r_hill = hillShade(r_terrain[["slope"]], r_terrain[["aspect"]])
 ```
 
 ```{r echo = FALSE}
-ggplot() + vr_geom_raster_seq(r_hill) + ggtitle("Hillshade") 
+ggplot() + vr_geom_raster_seq(r_hill) + ggtitle("Hillshade")
 ```
 
 ## interpolate
 ```{r, echo = FALSE}
 require("fields")
-survey = as.data.frame(r_volcano, xy = TRUE)
+survey = as.data.frame(v, xy = TRUE)
 survey = survey[sample(1:nrow(survey), 50), ]
 ```
 
 ```{r, eval = TRUE}
 tps = Tps(survey[, c("x", "y")], survey$layer)
-r_interpolate = interpolate(r_volcano, tps)
+r_interpolate = interpolate(v, tps)
 ```
 
-```{r echo = FALSE, message = FALSE}
+```{r echo = FALSE, message = FALSE, fig.height = 6}
 gsurvey = vr_geom_point(survey, size = 2)
-ggplot() + vr_geom_raster_seq(r_volcano) + ggtitle("Volcano") + gsurvey
-ggplot() + vr_geom_raster_seq(r_interpolate, limits = range(r_volcano[])) + ggtitle("Interpolation") + gsurvey
-ggplot() + vr_geom_raster_div(r_interpolate - r_volcano) + ggtitle("Differences") + gsurvey
-ggplot() + vr_geom_raster_seq(interpolate(r_volcano, tps, fun=predictSE)) + ggtitle("Standard Error") + gsurvey
+p1 <- ggplot() + vr_geom_raster_seq(v) + ggtitle("Volcano") + gsurvey
+p2 <- ggplot() + vr_geom_raster_seq(r_interpolate, limits = range(v[])) + ggtitle("Interpolation") + gsurvey
+p3 <- ggplot() + vr_geom_raster_div(r_interpolate - v) + ggtitle("Differences") + gsurvey
+p4 <- ggplot() + vr_geom_raster_seq(interpolate(v, tps, fun=predictSE)) + ggtitle("Standard Error") + gsurvey
+p1 + p2 + p3 + p4
 ```
 
 # layerize
-```{r}
-s = layerize(r)
-```
-
 ```{r echo = FALSE}
+p1 <- lh(r_clumps) + labs(subtitle = "r_clumps")
+s = layerize(r_clumps)
 dd = as_data(s, melt = TRUE)
 levels(dd$variable) = gsub("X", "", levels(dd$variable))
 dd$fill = factor(with(dd, as.integer(variable) * value))
 dd$fill[dd$fill == 0] = NA
 dd$fill = droplevels(dd$fill)
-ggplot() +
+p2 <- 
+  ggplot() +
   geom_tile(data = dd, 
             aes(x = x, y = y, fill = fill), 
             color = "#888888", size = 0.25) +
-  facet_wrap(~variable) + coord_equal()
+  facet_wrap(~variable) + 
+  coord_equal() +
+  labs(subtitle = "layerize(r_clumps)") +
+  scale_colour_manual(values = cols,
+                        aesthetics = c("colour", "fill"),
+                        guide = "none")
+p1 + p2
 ```
