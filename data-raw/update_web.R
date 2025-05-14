@@ -1,0 +1,8 @@
+# system("quarto preview --render all --no-watch-inputs --no-browse")
+# quarto::quarto_render()
+devtools::check()
+devtools::build_readme()
+pkgdown::build_site()
+system("rm -rf /net/hafri.hafro.is/export/home/hafri/einarhj/public_html/pkg/visualraster/*")
+system("cp -r docs/* /net/hafri.hafro.is/export/home/hafri/einarhj/public_html/pkg/visualraster/.")
+system("chmod -R a+rX /net/hafri.hafro.is/export/home/hafri/einarhj/public_html/pkg/visualraster")

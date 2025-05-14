@@ -4,3 +4,5 @@
 ^docs$
 ^pkgdown$
 gitignore/
+data-raw
+^README\.Rmd$
